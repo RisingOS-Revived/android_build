@@ -1297,9 +1297,10 @@ function ascend() {
 
 function rise() {
     if [[ "$1" == "help" ]]; then
-        echo "Usage: rise [b|fb|sb] [-j<num_cores>]"
+        echo "Usage: rise [b|fb|fbs|sb] [-j<num_cores>]"
         echo "   b   - Build bacon"
         echo "   fb  - Fastboot update"
+        echo "   fbs - Signed Fastboot update"
         echo "   sb  - Signed Build"
         echo "   -j<num_cores>  - Specify the number of cores to use for the build"
         return 0
@@ -1320,12 +1321,12 @@ function rise() {
             -j*)
                 jCount="$1"
                 ;;
-            b|fb|sb)
+            b|fb|fbs|sb)
                 cmd="$1"
                 ;;
             *)
-                echo "Error: Invalid argument mode. Please use 'b', 'fb', 'sb', 'help', or a job count flag like '-j<number>'."
-                echo "Usage: rise [b|fb|sb] [-j<num_cores>]"
+                echo "Error: Invalid argument mode. Please use 'b', 'fb', 'fbs', 'sb', 'help', or a job count flag like '-j<number>'."
+                echo "Usage: rise [b|fb|fbs|sb] [-j<num_cores>]"
                 return 1
                 ;;
         esac
@@ -1346,6 +1347,14 @@ function rise() {
             ;;
         fb)
             m updatepackage ${jCount:--j$(nproc --all)}
+            ;;
+        fbs)
+            if [[ ! -f "$ANDROID_KEY_PATH/releasekey.pk8" || ! -f "$ANDROID_KEY_PATH/releasekey.x509.pem" ]]; then
+                echo "Keys not found. Generating keys..."
+                gk -f
+            fi
+            echo "Reminder: Please ensure that you have generated keys using 'gk -f' before running 'rise fbs'."
+            genSignedFastboot
             ;;
         "")
             m ${jCount:--j$(nproc --all)}
@@ -1725,6 +1734,20 @@ function genSignedOta() {
         --block --backup=true \
         $OUT/signed-target_files.zip \
         $OUT/signed-ota_update.zip
+}
+
+function genSignedFastboot() {
+    local rising_build_version="$(get_build_var RISING_BUILD_VERSION)"
+    local target_file="$OUT/signed-target_files.zip"
+    local fastboot_package="$OUT/RisingOS-$rising_build_version-fastboot-signed.zip"
+    echo "Creating signed target files..."
+    m target-files-package || { echo "Failed to create target files package."; return 1; }
+    sign_target_files || { echo "Failed to sign target files."; return 1; }
+    echo "Generating signed fastboot images..."
+    img_from_target_files \
+        "$target_file" \
+        "$fastboot_package" || { echo "Failed to create fastboot images."; return 1; }
+    echo "Signed fastboot package created at: $fastboot_package"
 }
 
 function extractSI() {
