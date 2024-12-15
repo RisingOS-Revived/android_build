@@ -497,16 +497,34 @@ function lunch()
 
     if ! check_product $product $release
     then
-        # if we can't find a product, try to grab it off the LineageOS GitHub
+        local device_found=false
+        # if we can't find a product, try to grab it off the risingOS/LineageOS GitHub
         T=$(gettop)
+
+        # Attempt to use risingOS's roomservice
         cd $T > /dev/null
-        vendor/lineage/build/tools/roomservice.py $product
+        if vendor/rising/build/tools/roomservice.py $product; then
+            device_found=true
+        fi
         cd - > /dev/null
-        check_product $product $release
+
+        if ! $device_found; then
+            # Fallback to Lineage's roomservice
+            cd $T > /dev/null
+            if vendor/lineage/build/tools/roomservice.py $product; then
+                device_found=true
+            fi
+            cd - > /dev/null
+        fi
+
+        if ! $device_found; then
+            echo "Failed to locate device: $product"
+            return 1
+        fi
     else
         T=$(gettop)
         cd $T > /dev/null
-        vendor/lineage/build/tools/roomservice.py $product true
+        vendor/rising/build/tools/roomservice.py $product true
         cd - > /dev/null
     fi
 
@@ -1232,12 +1250,12 @@ function riseupload() {
     rising_version="${rising_version%.*}.x"
     product_out="out/target/product/$target_device/"
     source_file="$(find "$product_out" -maxdepth 1 -type f -name 'RisingOS-*.zip' -print -quit)"
-    
+
     if [ -z "$source_file" ]; then
         echo "Error: Could not find RisingOS zip file in $product_out"
         return 1
     fi
-    
+
     filename="$(basename "$source_file" .zip)"
     destination="${sf_username}@frs.sourceforge.net:/home/frs/project/risingos-official/$rising_version/$package_type/$target_device/"
     rsync -e ssh "$source_file" "$destination"
@@ -1897,7 +1915,7 @@ function rcleanup() {
     > current_repos.txt
 
     # Aggregate project names from manifest files in .repo/manifests
-    for manifest in .repo/manifests/default.xml .repo/manifests/snippets/crdroid.xml .repo/manifests/snippets/lineage.xml .repo/manifests/snippets/pixel.xml .repo/manifests/snippets/rising.xml; 
+    for manifest in .repo/manifests/default.xml .repo/manifests/snippets/crdroid.xml .repo/manifests/snippets/lineage.xml .repo/manifests/snippets/pixel.xml .repo/manifests/snippets/rising.xml;
     do
         if [ -f "$manifest" ]; then
             grep 'name=' "$manifest" | sed -e 's/.*name="\([^"]*\)".*/\1/' >> current_repos.txt
@@ -1928,7 +1946,7 @@ function rcleanup() {
 
     echo "The following repositories will be removed:"
     echo "$old_repos"
-    
+
     read -p "Do you want to proceed with the removal? (y/n): " confirm
     if [[ "$confirm" != "y" ]]; then
         echo "Removal cancelled."
