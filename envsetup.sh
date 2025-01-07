@@ -1977,6 +1977,30 @@ function rcleanup() {
     croot
 }
 
+# usage: buildInstall Launcher3QuickStep/SettingsGoogle etc
+function buildInstall() {
+    local package="$1"
+    m "$package"
+    install "$package"
+}
+
+# usage: install Launcher3QuickStep/SettingsGoogle etc
+function install() {
+    local target_device="$(get_build_var TARGET_DEVICE)"
+    local package="$1"
+    local apk_path=$(find "out/target/product/$target_device/" \
+        \( -path "*/system_ext/*" -o -path "*/product/*" -o -path "*/system/*" \) \
+        -type f -name "$package.apk" -print -quit)
+
+    if [[ -z "$apk_path" ]]; then
+        echo "Error: APK for package '$package' not found in system_ext, product, or system directories."
+        return 1
+    fi
+
+    echo "Installing: $apk_path"
+    adb install "$apk_path"
+}
+
 alias adevtool='vendor/adevtool/bin/run'
 alias adto='vendor/adevtool/bin/run'
 
