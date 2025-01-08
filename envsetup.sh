@@ -2001,6 +2001,59 @@ function install() {
     adb install "$apk_path"
 }
 
+# usage: biPart system_ext/system/product/vendor
+function biPart() {
+    local partition="$1"
+    bPart "$partition"
+    iPart "$partition"
+}
+
+# usage: bPart system_ext/system/product/vendor
+function bPart() {
+    local partition="$1"
+    case "$partition" in
+        system_ext)
+            m systemextimage
+            ;;
+        product)
+            m productimage
+            ;;
+        system)
+            m systemimage
+            ;;
+        vendor)
+            m vendorimage
+            ;;
+        *)
+            echo "Error: Unknown partition '$partition'. Valid options: system_ext, product, system, vendor."
+            return 1
+            ;;
+    esac
+}
+
+# usage: iPart system_ext/system/product/vendor
+function iPart() {
+    local partition="$1"
+    local target_device="$(get_build_var TARGET_DEVICE)"
+    local img_path
+    case "$partition" in
+        system_ext|product|system|vendor)
+            img_path="out/target/product/$target_device/$partition.img"
+            ;;
+        *)
+            echo "Error: Unknown partition '$partition'. Valid options: system_ext, product, system, vendor."
+            return 1
+            ;;
+    esac
+    if [[ ! -f "$img_path" ]]; then
+        echo "Error: Image for partition '$partition' not found at $img_path."
+        return 1
+    fi
+    echo "Flashing $partition image: $img_path"
+    adb reboot fastboot
+    fastboot flash "$partition" "$img_path" && fastboot reboot
+}
+
 alias adevtool='vendor/adevtool/bin/run'
 alias adto='vendor/adevtool/bin/run'
 
