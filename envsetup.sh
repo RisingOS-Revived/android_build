@@ -2054,6 +2054,25 @@ function iPart() {
     fastboot flash "$partition" "$img_path" && fastboot reboot
 }
 
+# usage: rInit fifteen RisingOS-staging/RisingTechOSS
+function rInit() {
+    local branch="$1"
+    local org="$2"
+    yes y | repo init -u https://github.com/$org/android -b $branch --git-lfs
+}
+
+# usage: rfSync fifteen RisingOS-staging/RisingTechOSS
+function rfSync() {
+    local branch="$1"
+    local org="$2"
+    rInit "$branch" "$org"
+    repo sync -c --no-clone-bundle --optimized-fetch --prune --force-sync -j$(nproc --all)
+}
+
+function devSync() {
+    rfSync personal RisingOS-staging
+}
+
 alias adevtool='vendor/adevtool/bin/run'
 alias adto='vendor/adevtool/bin/run'
 
