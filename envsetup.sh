@@ -1628,8 +1628,8 @@ function sign_build() {
     fi
     echo "Creating RisingOS JSON OTA..."
     $ANDROID_BUILD_TOP/vendor/rising/build/tools/createjson.sh "$target_device" "$OUT" "RisingOS-$rising_build_version-ota-signed.zip" "$rising_version" "$rising_codename" "$rising_package_type" "$rising_release_type"
-    local json_file="${rising_package_type}_${target_device}.json"
-    cp -f "$OUT/$json_file" "vendor/risingOTA/$json_file"
+    local json_file="${target_device}.json"
+    cp -f "$OUT/$json_file" "vendor/official_devices/OTA/device/${rising_package_type}/$json_file"
     echo "RisingOS JSON OTA created and copied."
 }
 
