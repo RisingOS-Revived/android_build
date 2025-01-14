@@ -2073,6 +2073,50 @@ function devSync() {
     rfSync personal RisingOS-staging
 }
 
+#!/bin/bash
+
+# usage: extractIconsFromLawnIcons <target_directory> <output_directory>
+function extractIconsFromLawnIcons() {
+    if [ $# -ne 2 ]; then
+        echo "Usage: extractIconsFromLawnIcons <target_directory> <output_directory>"
+        return 1
+    fi
+
+    target_dir=$1
+    output_dir=$2
+
+    echo "Creating output directory at $output_dir..."
+    mkdir -p "$output_dir"
+
+    echo "Copying icons from grayscale map list..."
+    grep -oP 'drawable="@drawable/[^"]+"' "$target_dir/res/xml/grayscale_icon_map.xml" | \
+    sed 's/drawable="@drawable\///' | \
+    tr -d '"' | \
+    tr '\n' '\0' | \
+    xargs -0 -I {} cp "$target_dir/res/drawable/{}.xml" "$output_dir"/
+
+    echo "Copying calendar themed icons..."
+    for file in "$target_dir"/res/drawable/themed_icon_calendar_*.xml; do
+        if [ -f "$file" ]; then
+            cp "$file" "$output_dir"/
+        else
+            echo "No calendar icons found."
+            break
+        fi
+    done
+
+    echo "Copying clock themed icons..."
+    for clock_file in clock.xml clock_foreground.xml; do
+        if [ -f "$target_dir/res/drawable/$clock_file" ]; then
+            cp "$target_dir/res/drawable/$clock_file" "$output_dir"/
+        else
+            echo "Clock icon $clock_file not found."
+        fi
+    done
+
+    echo "Extraction completed. Icons copied to $output_dir."
+}
+
 alias adevtool='vendor/adevtool/bin/run'
 alias adto='vendor/adevtool/bin/run'
 
