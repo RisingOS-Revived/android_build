@@ -1977,15 +1977,15 @@ function rcleanup() {
     croot
 }
 
-# usage: buildInstall Launcher3QuickStep/SettingsGoogle etc
-function buildInstall() {
+# usage (buildInstallApp): biApp Launcher3QuickStep/SettingsGoogle etc
+function biApp() {
     local package="$1"
     m "$package"
     install "$package"
 }
 
-# usage: install Launcher3QuickStep/SettingsGoogle etc
-function install() {
+# usage (installApp): iApp Launcher3QuickStep/SettingsGoogle etc
+function iApp() {
     local target_device="$(get_build_var TARGET_DEVICE)"
     local package="$1"
     local apk_path=$(find "out/target/product/$target_device/" \
