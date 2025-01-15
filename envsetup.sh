@@ -1981,7 +1981,7 @@ function rcleanup() {
 function biApp() {
     local package="$1"
     m "$package"
-    install "$package"
+    iApp "$package"
 }
 
 # usage (installApp): iApp Launcher3QuickStep/SettingsGoogle etc
