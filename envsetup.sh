@@ -1989,6 +1989,11 @@ function rcleanup() {
 # usage (buildInstallApp): biApp Launcher3QuickStep/SettingsGoogle etc
 function biApp() {
     local package="$1"
+    if [[ "$package" == "L3" ]]; then
+        package="Launcher3QuickStep"
+    elif [[ "$package" == "SG" ]]; then
+        package="SettingsGoogle"
+    fi
     m "$package"
     iApp "$package"
 }
@@ -1997,6 +2002,11 @@ function biApp() {
 function iApp() {
     local target_device="$(get_build_var TARGET_DEVICE)"
     local package="$1"
+    if [[ "$package" == "L3" ]]; then
+        package="Launcher3QuickStep"
+    elif [[ "$package" == "SG" ]]; then
+        package="SettingsGoogle"
+    fi
     local apk_path=$(find "out/target/product/$target_device/" \
         \( -path "*/system_ext/*" -o -path "*/product/*" -o -path "*/system/*" \) \
         -type f -name "$package.apk" -print -quit)
