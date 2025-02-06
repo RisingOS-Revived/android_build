@@ -1249,10 +1249,10 @@ function riseupload() {
     rising_version="$(get_build_var RISING_VERSION)"
     rising_version="${rising_version%.*}.x"
     product_out="out/target/product/$target_device/"
-    source_file="$(find "$product_out" -maxdepth 1 -type f -name 'RisingOS-*.zip' -print -quit)"
+    source_file="$(find "$product_out" -maxdepth 1 -type f -name 'RisingOS_Revived-*.zip' -print -quit)"
 
     if [ -z "$source_file" ]; then
-        echo "Error: Could not find RisingOS zip file in $product_out"
+        echo "Error: Could not find RisingOS Revived zip file in $product_out"
         return 1
     fi
 
@@ -1627,7 +1627,7 @@ function sign_build() {
     sign_target_files
     genSignedOta
     local source_file="$OUT/signed-ota_update.zip"
-    local target_file="$OUT/RisingOS-$rising_build_version-ota-signed.zip"
+    local target_file="$OUT/RisingOS_Revived-$rising_build_version-ota-signed.zip"
     if [[ -e "$source_file" ]]; then
         mv "$source_file" "$target_file"
         echo "Renamed $source_file to $target_file"
@@ -1635,11 +1635,11 @@ function sign_build() {
         echo "File $source_file does not exist."
         return 1
     fi
-    echo "Creating RisingOS JSON OTA..."
-    $ANDROID_BUILD_TOP/vendor/rising/build/tools/createjson.sh "$target_device" "$OUT" "RisingOS-$rising_build_version-ota-signed.zip" "$rising_version" "$rising_codename" "$rising_package_type" "$rising_release_type"
+    echo "Creating RisingOS Revived JSON OTA..."
+    $ANDROID_BUILD_TOP/vendor/rising/build/tools/createjson.sh "$target_device" "$OUT" "RisingOS_Revived-$rising_build_version-ota-signed.zip" "$rising_version" "$rising_codename" "$rising_package_type" "$rising_release_type"
     local json_file="${target_device}.json"
     cp -f "$OUT/$json_file" "vendor/official_devices/OTA/device/${rising_package_type}/$json_file"
-    echo "RisingOS JSON OTA created and copied."
+    echo "RisingOS Revived JSON OTA created and copied."
 }
 
 function sign_build_incremental() {
@@ -1671,7 +1671,7 @@ function sign_build_incremental() {
     sign_target_files
     genSignedIncrementalOta
     local source_file="$OUT/signed-incremental-ota_update.zip"
-    local target_file="$OUT/RisingOS-$rising_build_version-incremental-ota-signed.zip"
+    local target_file="$OUT/RisingOS_Revived-$rising_build_version-incremental-ota-signed.zip"
     if [[ -e "$source_file" ]]; then
         mv "$source_file" "$target_file"
         echo "Renamed $source_file to $target_file"
@@ -1679,11 +1679,11 @@ function sign_build_incremental() {
         echo "File $source_file does not exist."
         return 1
     fi
-    echo "Creating RisingOS JSON OTA entry for incremental OTA..."
-    $ANDROID_BUILD_TOP/vendor/rising/build/tools/createjson.sh "$target_device" "$OUT" "RisingOS-$rising_build_version-incremental-ota-signed.zip" "$rising_version" "$rising_codename" "$rising_package_type" "$rising_release_type"
+    echo "Creating RisingOS Revived JSON OTA entry for incremental OTA..."
+    $ANDROID_BUILD_TOP/vendor/rising/build/tools/createjson.sh "$target_device" "$OUT" "RisingOS_Revived-$rising_build_version-incremental-ota-signed.zip" "$rising_version" "$rising_codename" "$rising_package_type" "$rising_release_type"
     local json_file="${rising_package_type}_${target_device}.json"
     cp -f "$OUT/$json_file" "vendor/risingOTA/$json_file"
-    echo "RisingOS JSON OTA created and copied."
+    echo "RisingOS Revived JSON OTA created and copied."
 }
 
 function sign_target_files() {
@@ -1822,7 +1822,7 @@ function genSignedOta() {
 function genSignedFastboot() {
     local rising_build_version="$(get_build_var RISING_BUILD_VERSION)"
     local target_file="$OUT/signed-target_files.zip"
-    local fastboot_package="$OUT/RisingOS-$rising_build_version-fastboot-signed.zip"
+    local fastboot_package="$OUT/RisingOS_Revived-$rising_build_version-fastboot-signed.zip"
     echo "Creating signed target files..."
     m target-files-package || { echo "Failed to create target files package."; return 1; }
     sign_target_files || { echo "Failed to sign target files."; return 1; }
@@ -1845,7 +1845,7 @@ function genSignedIncrementalOta() {
 function extractSI() {
     local rising_build_version="$(get_build_var RISING_BUILD_VERSION)"
     rm -rf $OUT/signed_builds_images
-    unzip $OUT/RisingOS-$rising_build_version-ota-signed.zip -d $OUT/signed_builds_images
+    unzip $OUT/RisingOS_Revived-$rising_build_version-ota-signed.zip -d $OUT/signed_builds_images
     prebuilts/extract-tools/linux-x86/bin/ota_extractor --payload $OUT/signed_builds_images/payload.bin
     if [ ! -d "$OUT/signed_builds_images" ]; then
         mkdir $OUT/signed_builds_images
