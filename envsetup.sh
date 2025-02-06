@@ -1260,7 +1260,7 @@ function riseupload() {
     fi
 
     filename="$(basename "$source_file" .zip)"
-    destination="${sf_username}@frs.sourceforge.net:/home/frs/project/risingos-official/$rising_version/$package_type/$target_device/"
+    destination="${sf_username}@frs.sourceforge.net:/home/frs/project/risingos-revived/$rising_version/$package_type/$target_device/"
     rsync -e ssh "$source_file" "$destination"
 }
 
