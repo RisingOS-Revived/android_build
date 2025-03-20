@@ -1990,7 +1990,7 @@ function rcleanup() {
 function biApp() {
     local package="$1"
     if [[ "$package" == "L3" ]]; then
-        package="Launcher3QuickStep"
+        package="TrebuchetQuickStep"
     elif [[ "$package" == "SG" ]]; then
         package="SettingsGoogle"
     fi
