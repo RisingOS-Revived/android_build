@@ -439,7 +439,6 @@ function print_lunch_menu()
 function lunch()
 {
     local answer
-    setup_cog_env_if_needed
 
     if [[ $# -gt 1 ]]; then
         echo "usage: lunch [target]" >&2
@@ -485,14 +484,7 @@ function lunch()
     # This must be <product>-<release>-<variant>
     local product release variant
     # Split string on the '-' character.
-    if [[ $(echo $selection | grep -o "-" | wc -l) = 1 ]];
-    then
-        # Always pick the latest release
-        release=$(grep "BUILD_ID" build/make/core/build_id.mk | tail -1 | cut -d '=' -f 2 | cut -d '.' -f 1 | tr '[:upper:]' '[:lower:]')
-        IFS="-" read -r product variant <<< "$selection"
-    else
-        IFS="-" read -r product release variant <<< "$selection"
-    fi
+    IFS="-" read -r product release variant <<< "$selection"
 
     if [[ -z "$product" ]] || [[ -z "$release" ]] || [[ -z "$variant" ]]
     then
