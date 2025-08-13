@@ -1244,6 +1244,32 @@ unset syswrite
 unset tomlgrep
 unset treegrep
 
+function apply_gms_fixes() {
+    local files=(
+        "$ANDROID_BUILD_TOP/vendor/gms/system_ext/packages/privileged_apps/NexusLauncherRelease/Android.mk"
+        "$ANDROID_BUILD_TOP/vendor/gms/system_ext/packages/privileged_apps/AvatarPickerGoogle/Android.mk"
+    )
+
+    for android_mk_file in "${files[@]}"; do
+        if [ -f "$android_mk_file" ]; then
+            local basename_file
+            basename_file=$(basename "$(dirname "$android_mk_file")")
+            if grep -q "^LOCAL_OVERRIDES_PACKAGES" "$android_mk_file"; then
+                echo "Removing LOCAL_OVERRIDES_PACKAGES from ${basename_file}/Android.mk..."
+                sed -i '/^LOCAL_OVERRIDES_PACKAGES/d' "$android_mk_file"
+                echo "Done."
+            fi
+        fi
+    done
+
+    local settings_mk="$ANDROID_BUILD_TOP/vendor/gms/product/packages/privileged_apps/SettingsIntelligenceGooglePrebuilt/Android.mk"
+    if [ -f "$settings_mk" ] && grep -q "LOCAL_CERTIFICATE := PRESIGNED" "$settings_mk"; then
+        echo "Updating certificate in SettingsIntelligenceGooglePrebuilt/Android.mk..."
+        sed -i 's/LOCAL_CERTIFICATE := PRESIGNED/LOCAL_UPDATABLE := false\nLOCAL_CERTIFICATE := platform/' "$settings_mk"
+        echo "Done."
+    fi
+}
+
 function setup_ccache() {
     if [ -z "${CCACHE_EXEC}" ]; then
         if command -v ccache &>/dev/null; then
@@ -2172,6 +2198,8 @@ addcompletions
 
 remove_broken_build_tools
 setup_ccache
+
+apply_gms_fixes
 
 export ANDROID_BUILD_TOP=$(gettop)
 export ANDROID_KEY_PATH="$ANDROID_BUILD_TOP/vendor/lineage-priv/keys"
