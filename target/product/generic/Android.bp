@@ -575,7 +575,6 @@ system_image_defaults {
         "dumpsys",
         "e2fsck",
         "enhanced-confirmation.xml", // base_system
-        "etc_hosts",
         "flags_health_check",
         "framework-audio_effects.xml", // for handheld // handheld_system
         "framework-sysconfig.xml",
