@@ -127,7 +127,8 @@ PRODUCT_SYSTEM_MANUFACTURER := Android
 PRODUCT_SYSTEM_MODEL := Generic System
 PRODUCT_SYSTEM_DEVICE := generic
 
-_base_mk_allowed_list :=
+_base_mk_allowed_list := \
+    system_ext/etc/hosts.adblock
 
 _my_allowed_list := $(_base_mk_allowed_list)
 
